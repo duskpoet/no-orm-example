@@ -18,6 +18,13 @@ So you scan some data from the db and you get arrays (or lists, or sequences, or
 When you write unit tests for entities that work with your stored data, ideally you want to be ignorant of the database layer. Raw data is totally decoupled from it's origin by nature and can be mocked as you prefer.
 ORM, on the other hand, is dependant on it's implementation and may support some mock storage, otherwise you have to always execute tests in front of some database.
 
+### ORM libraries authors don't know about your domain
+But you do. Sometimes more specific solutions can be really beneficial for you project. Maybe there is some addition to the generated SQL, that can vastly improve the speed of querying.
+
+### Databases can be complex
+Beyond simple CRUD operations database can support many amazing features, like: sharding, different index types, non-standard conditional operators, non-standard built-in functions. Probably an ORM library lacks the support for many features of the database you are using.
+Also, if you pick an ORM library and build upon it, you are tieing yourself with that library and at some point if there is a database solution that may be really beneficial to your domain, you may end up in situation where you need to massively rework you codebase.
+
 ### Rich said that ORM is bad
 Seriously, if you haven't seen ["Simple made easy"](https://www.youtube.com/watch?v=SxdOUGdseq4) talk by Rich Hickey, do yourself a favor, it's very inlightening.
 
