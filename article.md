@@ -9,11 +9,66 @@ But this article's title doesn't say "Why everyone should always ORMs", so I wan
 ## Why you don't need ORM
 
 ### Communication with database
-The lowest level representation of the database data is pure bytes (well it's actually electrons stored and moved in wires and semiconductors if we go all the way down, but we will stay in the software field). So when any db driver talks to the actual database over the network it sends and receives packets with bytes. Further, based on the db protocol, which describes how to read and process these bytes, db driver transforms the bytes into meaningful data structures. So, as we can see, the db driver works sort of like an ORM here: it maps the raw db data into your programming language constructs. And ORM maps this data further into different constructs. The data received from the driver is ready to be used in your application. That is the first point why you don't need ORM.
+The lowest level representation of the database data is pure bytes (well it's actually electrons stored and moved in wires and semiconductors if we go all the way down, but we will stay in the software field). So when any db driver talks to the actual database over the network it sends and receives packets with bytes. Further, based on the db protocol, which describes how to read and process these bytes, db driver transforms the bytes into meaningful data structures. So, as we can see, the db driver works sort of like an ORM here: it maps the raw db data into your programming language constructs. And ORM maps this data further into different constructs. The data received from the driver is ready to be used in your application. That is the first point on why you don't need ORM.
 
 ### Raw data is powerful
-So you scan some data from db and you get arrays (or lists, or sequences, or iterator, depends on your language of choice) in return. Right of the box you have powerful tools to work with that data, because your standard library contains many functions that work on arrays, maps. On contrary they may or may not work on ORM specific objects. Raw data also is perfectly serializable and is ready to be transferend via wire.
+So you scan some data from the db and you get arrays (or lists, or sequences, or iterator, depends on your language and driver of choice) in return. Right of the box you have powerful tools to work with that data, because your standard library contains many functions that work on arrays, maps. On contrary these functions may or may not work on ORM specific objects. Also, raw data is perfectly serializable and is ready to be transfered via wire.
 
 ### Does your ORM support tests
-When you write unit tests for entities that use your representation of a stored data, ideally you want to be ignorant of the database layer. So when you work with raw data it is totally decoupled from it's origin by nature and can be mocked as you prefer.
-ORM on the other hand is dependant on it's implementation and may support some mock storage, otherwise you have to always execute tests in front of some database.
+When you write unit tests for entities that work with your stored data, ideally you want to be ignorant of the database layer. Raw data is totally decoupled from it's origin by nature and can be mocked as you prefer.
+ORM, on the other hand, is dependant on it's implementation and may support some mock storage, otherwise you have to always execute tests in front of some database.
+
+### Rich said that ORM is bad
+Seriously, if you haven't seen ["Simple made easy"](https://www.youtube.com/watch?v=SxdOUGdseq4) talk by Rich Hickey, do yourself a favor, it's very inlightening.
+
+## How to build without ORM
+
+Let's figure, how to build our projects with the "no ORM" approach. We want to build solution that is testable separately from the database, operates on data, has layers with well defined boundaries (kudos to [Uncle Bob](https://www.youtube.com/watch?v=o_TH-Y78tt4)).
+I will build an example using node, typescript, neon (postgres). It will contain single entity - `User` with attributes `name` and `age`.
+
+### Model layer
+
+So how do we represent a model withing our concept? It's just an interface!
+[link](./src/types/dbAdapter.ts)
+
+```
+export type User = {
+  id: number;
+  name: string;
+  age: number;
+};
+```
+
+If later we want to add some methods, that operate on `User` somehow, then we just write a function that accepts `User` as parameter or returns a `User` shaped object.
+Now we want to connect the `User` entity to db: store it, retreive it, modify and delete.
+
+### Repository layer
+Now let's add entity `Repository`. It will have CRUD methods that operate on raw data and will perform database operations.
+[link](./src/types/dbAdapter.ts)
+
+```
+export type Repository<T extends Record<string, any>> = {
+  name(): string;
+  create(data: Omit<T, "id">): Promise<T>;
+  readMany<K extends keyof T>(filters: Filter<T, K>[]): Promise<T[]>;
+  read(id: string): Promise<T>;
+  update(id: string, data: T): Promise<T>;
+  delete(id: string): Promise<T>;
+};
+```
+The `Repository` is our missing database operations layer. It can perform all of the "get, store data" stuff. Also, if some entities require additional operations we can extend the basic `Repository` for them with additional operations like `createOrReplace` or `updateMany`.
+
+### Database adapter
+Database adapter would be the function that returns a `Repository` instance. Here is an example of how it can look for the postgres database. [link](./src/db/adapter.ts)
+
+If we want to test an adapter we probably would do it against a real database in a snapshot manner with something like these steps:
+* Create test repository using the tested adapter
+* Run some methods
+* Check that the database state matches our expectations
+[link](./src/db/adapter.test.ts)
+
+
+### Our Repository is pretty usefull
+Actually, our Repository instance is not only good for the database management. For example, we can build REST api from it. [link](./src/server/generateApi.ts)
+And write test for that implementation aswell. [link](./src/server/generateApi.test.ts)
+

@@ -4,8 +4,8 @@ import { Repository } from "../types/dbAdapter";
 export const apiHandler =
   <T>(repo: Repository<T>) =>
   async (req: IncomingMessage, res: ServerResponse) => {
-    const url = req.url.replace(/^\//, "");
-    const [subject, id] = url.split("/", 2);
+    const url = new URL(req.url, "http://localhost");
+    const [,subject, id] = url.pathname.split("/");
     if (subject !== repo.name()) {
       return false;
     }
@@ -26,7 +26,14 @@ export const apiHandler =
 
     const data = await (async () => {
       if (!id && req.method === "GET") {
-        return repo.readMany();
+        const filters = (() => {
+          try {
+            return JSON.parse(url.searchParams.get('filters'));
+          } catch {
+            return [];
+          }
+        })();
+        return repo.readMany(filters ?? []);
       }
       if (id && req.method === "GET") {
         return repo.read(id);
@@ -35,10 +42,10 @@ export const apiHandler =
         return repo.create(body as any);
       }
       if (id && req.method === "PUT") {
-        return repo.update(id, body as any);
+        return repo.update(id as any, body as any);
       }
       if (id && req.method === "DELETE") {
-        return repo.delete(id);
+        return repo.delete(id as any);
       }
     })();
 
