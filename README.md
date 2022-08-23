@@ -2,7 +2,7 @@
 This repo contains an article and example code on the topic
 
 ## Read an article
-Please, I will be delighted :) [./article.md]
+Please, I will be delighted :) [link](./article.md)
 
 ## Check the code
 All of the code sits in `src` directory
