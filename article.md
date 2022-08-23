@@ -79,3 +79,14 @@ If we want to test an adapter we probably would do it against a real database in
 Actually, our Repository instance is not only good for the database management. For example, we can build REST api from it. [link](./src/server/generateApi.ts)
 And write test for that implementation aswell. [link](./src/server/generateApi.test.ts)
 
+## Conclusions
+
+### I gotta be honest
+Fairly, current state of ORMs is not that bad as it was before. There are modern frameworks like Prisma, that acknowledge some of the problems I described above.
+For example, Prisma generates a client, that returns just typed data when using built-in query methods, so it is decoupled be design.
+I'd say it is a good sign, when you can view the database framework as an advanced driver.
+Still, using Prisma makes it very hard to migrate to unsupported database, so you need to keep that in mind.
+
+### The TL;DR
+Probably the main thought I want to convey is: design layers of your application in advance and with thinking ahead. Since it's almost impossible to predict the functionalities your application should provide in five years, two years, one year you need to create a very flexible architecture and layering your designs with well defined boundaries is the best approach for what I know.
+
