@@ -3,7 +3,9 @@ import format from "pg-format";
 
 import { Repository } from "../types/dbAdapter";
 
-const pool = new Pool();
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 export function pgAdapter<T>(tableName: string): Repository<T> {
 

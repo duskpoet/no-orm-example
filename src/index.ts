@@ -1,9 +1,9 @@
+import "dotenv/config";
+
 import * as http from "http";
-import * as dotenv from "dotenv";
 import { apiHandler } from "./server/generateApi";
 import { userRepository } from "./db/user";
 
-dotenv.config();
 const userHandler = apiHandler(userRepository);
 
 const server = http.createServer(async (req, res) => {

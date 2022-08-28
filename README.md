@@ -8,7 +8,7 @@ Please, I will be delighted :) [link](./article.md)
 All of the code sits in `src` directory
 
 ## Run the application
-Add postgres connection variables to the `.env` in the root directory. You can use [Neon](https://neon.tech/) or [docker](https://hub.docker.com/_/postgres) for a quick postgres setup.
+Add connection string to the `.env` like `DATABASE_URL=<connection string>` in the root directory. You can use [Neon](https://neon.tech/) or [docker](https://hub.docker.com/_/postgres) for a quick postgres setup.
 
 ```
 yarn && yarn migrate && yarn start
