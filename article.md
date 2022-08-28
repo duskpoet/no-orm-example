@@ -1,34 +1,34 @@
-#Backend without ORM
+# Backend without ORM
 
-##Few words about ORM
+## Few words about ORM
 
 ORM (Object-relational mapping) is a programming technique that allows you to map data from external storage (such as databases) to your local programming objects.
 This approach allows developers to abstract from database specificities and to perform CRUD operations as common function calls. This is beneficial since we don't have to know actual database syntax, some ORMs can even work on SQL and NoSQL databases simultaneously.
 But this article's title doesn't say "Why everyone should always ORMs", so I want to point out the downsides of ORMs and suggest an alternative approach.
 
-##Why you don't need ORM
+## Why you don't need ORM
 
-###Communication with database
+### Communication with database
 The lowest level representation of the database data is pure bytes (well it's actually electrons stored and moved in wires and semiconductors if we go all the way down, but we will stay in the software field). So when any driver talks to the actual database over the network it sends and receives packets of bytes. Further, based on the database protocol, which describes how to read and process these bytes, the driver transforms the bytes into meaningful data structures. So, as we can see, the database driver works sort of like an ORM here: it maps the raw data into your programming language constructs. And ORM maps this data even further into different constructs. The data received from the driver is ready to be used in your application. That is the first point on why you don't need ORM.
 
-###Raw data is powerful
+### Raw data is powerful
 So you read some data from the database and you get arrays (or lists, or sequences, or an iterator, depending on your language and driver of choice) in return. Right of the box, you have powerful tools to work with that data, because your standard library contains many functions that work on arrays and maps. On contrary, these functions may or may not work on ORM-specific objects. Also, raw data is perfectly serializable and is ready to be transferred via wire.
 
-###Does your ORM support tests
+### Does your ORM support tests
 When you write unit tests for entities that work with your stored data, ideally you want to be ignorant of the database layer. Raw data is decoupled from its origin by nature and can be mocked as you prefer.
 ORM, on the other hand, is dependent on its implementation and may support some mock storage, otherwise, you have to always execute tests in front of some database.
 
-###ORM libraries authors don't know about your domain
+### ORM libraries authors don't know about your domain
 But you do. Sometimes more specific solutions can be beneficial for your project. Maybe there is some addition to the generated SQL, that can vastly improve the speed of querying.
 
-###Databases can be complex
+### Databases can be complex
 Beyond simple CRUD operations database can support many amazing features, like sharding, different index types, non-standard conditional operators, and non-standard built-in functions. Probably an ORM library lacks the support for many features of the database you are using.
 Also, if you pick an ORM library and build upon it, you are tieing yourself with that library and at some point, if there is a database solution that may be beneficial to your application domain, you may end up in a situation where you need to massively rework your codebase.
 
-###Rich said that ORM is bad
+### Rich said that ORM is bad
 Seriously, if you haven't seen ["Simple made easy"](https://www.youtube.com/watch?v=SxdOUGdseq4) talk by Rich Hickey, do yourself a favor, it's very enlightening.
 
-##How to build without ORM
+## How to build without ORM
 
 Let's figure out how to build our projects with the "no ORM" approach. We want to build a solution that is testable separately from the database, operates on data, and has layers with well-defined boundaries (kudos to [Uncle Bob](https://www.youtube.com/watch?v=o_TH-Y78tt4)).
 I will build an example using node, typescript, and neon (postgres). It will contain a single entity - `User` with attributes `name` and `age`.
