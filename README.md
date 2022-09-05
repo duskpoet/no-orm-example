@@ -22,3 +22,6 @@ curl https://localhost:3000/users
 ```
 yarn test
 ```
+
+## Share your thoughts
+[Discuss](https://github.com/duskpoet/no-orm-example/discussions/1)
